@@ -1,0 +1,51 @@
+{% macro render_field(field) %}
+  <dt />{{ field.label }}: {{ field(**kwargs)|safe }}
+  <dd>
+  {% if field.errors %}
+    <ul class=errors>
+    {% for error in field.errors %}
+      <li>{{ error }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  </dd>
+{% endmacro %}
+
+<!doctype html>
+<html>
+    <head>
+        <title>Hello from Flask</title>
+    </head>
+
+    <body>
+        <h2> Watched Packages </h2>
+        <table>
+            <tr>
+                <td> Package Name </td>
+                <td> Your Package Version </td>
+                <td> Latest Package Version </td>
+            </tr>
+        {% for package in all_packages %}
+        <tr>
+            <td>
+                {{ package.package_name }}
+            </td>
+            <td>
+                {{ package.package_version }}
+            </td>
+            <td>
+                <b> {{ package.latest_version }} </b>
+            </td>
+        </tr>
+        {% endfor %}
+        </table>
+
+        <form method=post action="/">
+          <dl>
+            {{ render_field(form.package_name) }}
+            {{ render_field(form.package_version) }}
+          </dl>
+          <p><input type=submit value="Add package">
+        </form>
+    </body>
+</html>
