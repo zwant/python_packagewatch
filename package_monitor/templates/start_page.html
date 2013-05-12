@@ -1,51 +1,142 @@
+<!DOCTYPE html>
+
 {% macro render_field(field) %}
-  <dt />{{ field.label }}: {{ field(**kwargs)|safe }}
-  <dd>
-  {% if field.errors %}
-    <ul class=errors>
+{{ field.label(class_="control-label") }} {{ field(class_="controls", **kwargs)|safe }}
+
+{% if field.errors %}
+<ul class=errors>
     {% for error in field.errors %}
-      <li>{{ error }}</li>
+    <li>{{ error }}</li>
     {% endfor %}
-    </ul>
-  {% endif %}
-  </dd>
+</ul>
+{% endif %}
 {% endmacro %}
 
-<!doctype html>
-<html>
-    <head>
-        <title>Hello from Flask</title>
-    </head>
+<html lang="en">
+<head>
+    <title>Python Package Watcher</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel=stylesheet media="screen" type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel=stylesheet media="screen" type=text/css href="{{ url_for('static', filename='css/style.css') }}">
+</head>
 
-    <body>
-        <h2> Watched Packages </h2>
-        <table>
-            <tr>
-                <td> Package Name </td>
-                <td> Your Package Version </td>
-                <td> Latest Package Version </td>
-            </tr>
-        {% for package in all_packages %}
-        <tr>
-            <td>
-                {{ package.package_name }}
-            </td>
-            <td>
-                {{ package.package_version }}
-            </td>
-            <td>
-                <b> {{ package.latest_version }} </b>
-            </td>
-        </tr>
-        {% endfor %}
-        </table>
-
-        <form method=post action="/">
-          <dl>
-            {{ render_field(form.package_name) }}
-            {{ render_field(form.package_version) }}
-          </dl>
-          <p><input type=submit value="Add package">
+<body>
+<div class="container">
+    <div class="row-fluid">
+        <div class="span2 text-center">
+            <img src="{{ url_for('static', filename='img/python-logo-master-v3-TM.png') }}" width="200px" class="img-rounded main-logo">
+        </div>
+        <div class="span10 text-center">
+            <h2> Watched Packages </h2>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="span12">
+            {% if all_packages %}
+                <table class="table">
+                    <thead>
+                    <th> <div class="text-center"> Package Name </div> </th>
+                    <th> <div class="text-center"> Your Package Version </div> </th>
+                    <th> <div class="text-center"> Latest Package Version </div> </th>
+                    </thead>
+                    <tbody>
+                    {% for package in all_packages %}
+                    <tr class="{% if package.is_old %}warning{% else %}success{% endif %}" data-package-name="{{ package.package_name }}" data-url="{{ url_for('update_package', package_name=package.package_name) }}">
+                        <td>
+                            <div class="text-center">
+                                <a href="{{ package.package_url }}" target="_blank">
+                                    {{ package.package_name }}
+                                </a>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-center">
+                                {{ package.package_version }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-center">
+                                <b> {{ package.latest_version }} </b>
+                            </div>
+                        </td>
+                            <td class="edit-button">
+                                <a data-toggle="modal" title="Edit" class="open-edit-modal" href="#openEditModal">
+                                <div class="text-center">
+                                    <i class="icon-edit"></i>
+                                </div>
+                                </a>
+                            </td>
+                        <td>
+                            <a class="remove-button" href="#">
+                                <div class="text-center">
+                                    <i class="icon-remove"></i>
+                                </div>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-center">
+                    <strong> Not watching any packages yet! </strong>
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row-fluid text-center">
+        <div class="row-fluid">
+            <div class="span12">
+                <h4> Add new package </h4>
+            </div>
+        </div>
+        <form method="post" action="/" class="form-horizontal">
+            <div class="span12">
+                {% if error_msg %}
+                    <div class="alert alert-error">
+                        <a class="close" data-dismiss="alert">×</a>
+                        <strong>
+                            {{ error_msg }}
+                        </strong>
+                    </div>
+                {% endif %}
+                <div class="control-group">
+                    {{ render_field(form.package_name) }}
+                </div>
+                <div class="control-group">
+                    {{ render_field(form.package_version) }}
+                </div>
+                <div class="row-fluid">
+                    <div class="span12">
+                        <button type="submit" class="btn btn-large btn-primary"> Add Package </button>
+                    </div>
+                </div>
+            </div>
         </form>
-    </body>
+    </div>
+</div>
+<div class="modal hide" id="openEditModal">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal">×</button>
+        <h3>Edit Package - <span id="package_name" /></h3>
+    </div>
+    <div class="modal-body">
+        <form method="post" action="" class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label" for="new_package_version">New Version</label>
+                <input class="controls" type="text" name="new_package_version" id="new_package_version" value=""/>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</div>
+
+<script src="http://code.jquery.com/jquery.js"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
 </html>

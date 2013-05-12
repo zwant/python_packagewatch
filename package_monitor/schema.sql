@@ -2,9 +2,9 @@ DROP TABLE IF EXISTS "watched_packages";
 
 CREATE TABLE watched_packages
 (
-    id INTEGER PRIMARY KEY,
-    package_name VARCHAR(255) NOT NULL,
-    package_version VARCHAR(10),
+    package_name VARCHAR(255) UNIQUE NOT NULL,
+    package_url VARCHAR,
+    package_version VARCHAR(10) NOT NULL,
     latest_version VARCHAR(10),
-    last_updated DATETIME
+    last_updated TIMESTAMP
 );

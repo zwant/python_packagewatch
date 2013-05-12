@@ -1,0 +1,22 @@
+body {
+  background-image: url("../img/background.png");
+  background-repeat: repeat;
+}
+
+.form-horizontal .control-label {
+    width: 120px;
+}
+.form-horizontal .controls{
+    margin-left: 50px;
+}
+
+/* if you are using responsive bootstrap */
+@media (max-width: 480px) {
+    .form-horizontal .controls {
+        margin-left: 0;
+    }
+}
+
+.main-logo {
+    margin-top: 5px;
+}
