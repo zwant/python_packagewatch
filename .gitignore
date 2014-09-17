@@ -33,6 +33,7 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+pyvenv.cfg
 .Python
 database.db
 include
