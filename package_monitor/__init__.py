@@ -13,11 +13,11 @@ app.config.from_object('package_monitor.config')
 class AddPackageForm(Form):
     package_name = TextField('Package Name', [validators.Required(),
                                               validators.Length(min=1, max=50)])
-    package_version = TextField('Package Version', [validators.Regexp(ur'^\d{1,3}(\.\d{1,3})*$'),
+    package_version = TextField('Package Version', [validators.Regexp(r'^\d{1,3}(\.\d{1,3})*$'),
                                                     validators.Length(min=1, max=10)])
 
 class UpdatePackageForm(Form):
-    new_package_version = TextField('New Package Version', [validators.Regexp(ur'^\d{1,3}(\.\d{1,3})*$'),
+    new_package_version = TextField('New Package Version', [validators.Regexp(r'^\d{1,3}(\.\d{1,3})*$'),
                                                             validators.Length(min=1, max=10)])
 
 def connect_db():
