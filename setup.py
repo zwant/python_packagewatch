@@ -7,5 +7,11 @@ setup(
     packages=['package_monitor'],
     include_package_data=True,
     zip_safe=False,
-    install_requires=['Flask', 'Flask-WTF', 'requests']
+    install_requires=['Flask',
+                      'Flask-WTF',
+                      'requests',
+                      'psycopg2',
+                      'SQLAlchemy',
+                      'Flask-SQLAlchemy',
+                      'pytz']
 )

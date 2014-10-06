@@ -28,6 +28,20 @@
         </div>
         <div class="span10 text-center">
             <h2> Watched Packages </h2>
+            {% if not logged_in %}
+            <div class="span12">
+                <a data-toggle="modal" title="Login" class="open-login-modal" href="#openLoginModal">Login</a>
+            </div>
+            <div class="span12">
+                <a data-toggle="modal" title="Register" class="open-register-modal" href="#openRegisterModal">Register</a>
+            </div>
+            {% else %}
+            <div class="span12">
+                <a href="{{ url_for('views.logout') }}">
+                    Log Out
+                </a>
+            </div>
+            {% endif %}
         </div>
     </div>
     <div class="row-fluid">
@@ -38,10 +52,11 @@
                     <th> <div class="text-center"> Package Name </div> </th>
                     <th> <div class="text-center"> Your Package Version </div> </th>
                     <th> <div class="text-center"> Latest Package Version </div> </th>
+                    <th> <div class="text-center"> Python 3 Compatible? </div> </th>
                     </thead>
                     <tbody>
                     {% for package in all_packages %}
-                    <tr class="{% if package.is_old %}warning{% else %}success{% endif %}" data-package-name="{{ package.package_name }}" data-url="{{ url_for('update_package', package_name=package.package_name) }}">
+                    <tr class="{% if package.is_old %}warning{% else %}success{% endif %}" data-package-name="{{ package.package_name }}" data-url="{{ url_for('views.update_package', package_name=package.package_name) }}">
                         <td>
                             <div class="text-center">
                                 <a href="{{ package.package_url }}" target="_blank">
@@ -51,12 +66,17 @@
                         </td>
                         <td>
                             <div class="text-center">
-                                {{ package.package_version }}
+                                {{ package.version }}
                             </div>
                         </td>
                         <td>
                             <div class="text-center">
                                 <b> {{ package.latest_version }} </b>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-center">
+                                <b> {{ package.python3_compat }} </b>
                             </div>
                         </td>
                             <td class="edit-button">
@@ -84,6 +104,7 @@
             {% endif %}
         </div>
     </div>
+    {% if logged_in %}
     <div class="row-fluid text-center">
         <div class="row-fluid">
             <div class="span12">
@@ -114,6 +135,12 @@
             </div>
         </form>
     </div>
+    <div class="row-fluid text-center">
+        <div class="span12">
+            <a data-toggle="modal" title="Upload File" class="open-fileupload-modal" href="#uploadFileModal">Upload requirements-file</a>
+        </div>
+    </div>
+    {% endif %}
 </div>
 <div class="modal hide" id="openEditModal">
     <div class="modal-header">
@@ -133,6 +160,67 @@
         <button type="submit" class="btn btn-primary">Save</button>
     </div>
 </div>
+
+<div class="modal hide" id="openRegisterModal">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal">×</button>
+        <h3>Register</h3>
+    </div>
+    <div class="modal-body">
+        <form method="post" action="{{ url_for('views.register') }}" class="form-horizontal" id="registration_form">
+            <div class="control-group">
+                <label class="control-label" for="email">Email</label>
+                <input class="controls" type="text" name="email" id="email" value=""/>
+            </div>
+                <label class="control-label" for="password">Password</label>
+                <input class="controls" type="password" name="password" id="password" value=""/>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</div>
+
+<div class="modal hide" id="openLoginModal">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal">×</button>
+        <h3>Login</h3>
+    </div>
+    <div class="modal-body">
+        <form method="post" action="{{ url_for('views.login') }}" class="form-horizontal" id="login_form">
+            <div class="control-group">
+                <label class="control-label" for="email">Email</label>
+                <input class="controls" type="text" name="email" id="email" value=""/>
+            </div>
+                <label class="control-label" for="password">Password</label>
+                <input class="controls" type="password" name="password" id="password" value=""/>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        <button type="submit" class="btn btn-primary">Go!</button>
+    </div>
+</div>
+
+<div class="modal hide" id="uploadFileModal">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal">×</button>
+        <h3>Upload a requirements file</h3>
+    </div>
+    <div class="modal-body">
+        <form method="post" action="{{ url_for('views.upload_file') }}"  enctype="multipart/form-data" class="form-horizontal" id="upload_file_form">
+            <div class="control-group">
+                <input type="file" name="file" id="file" />
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </div>
+</div>
+
 
 <script src="http://code.jquery.com/jquery.js"></script>
 <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>

@@ -2,6 +2,7 @@ import re
 import requests
 
 PYPI_URL_TEMPLATE = 'https://pypi.python.org/pypi/{0}/json'
+requirements_parsing_regexp = re.compile(r'([^\<\=\>\s]*)\s?[\<\=\>]{1,2}\s?([0-9\.]*)')
 
 def cmp(a, b):
     return (a > b) - (a < b)
@@ -22,4 +23,10 @@ def get_package_info_from_pypi(package_name):
     if r.status_code == requests.codes.ok:
         return r.json()['info']
 
+    return None
+
+def parse_line_from_requirements(line):
+    matching = requirements_parsing_regexp.match(line)
+    if matching:
+        return (matching.group(1), matching.group(2))
     return None

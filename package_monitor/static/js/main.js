@@ -18,3 +18,36 @@ $(document).on("click", "#openEditModal .modal-footer button[type='submit']", fu
     $("#openEditModal .modal-body form").submit();
 });
 
+
+$("#openRegisterModal .modal-footer button[type='submit']").on("click", function () {
+    $.ajax({
+      url: $('#registration_form').attr('action'),
+      type: 'POST',
+      dataType: 'json',
+      data : $('#registration_form').serialize(),
+      success: function(data, status){
+        if (data.result === 'SUCCESS') {
+            document.location.href = '/';
+        }
+
+      }
+    });
+});
+
+$("#openLoginModal .modal-footer button[type='submit']").on("click", function () {
+    $.ajax({
+      url: $('#login_form').attr('action'),
+      type: 'POST',
+      dataType: 'json',
+      data : $('#login_form').serialize(),
+      success: function(data, status){
+        if (data.result === 'SUCCESS') {
+            document.location.href = '/';
+        }
+      }
+    });
+});
+
+$("#uploadFileModal .modal-footer button[type='submit']").on("click", function () {
+    $('#upload_file_form').submit();
+});
