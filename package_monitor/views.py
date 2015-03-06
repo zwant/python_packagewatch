@@ -192,6 +192,8 @@ def upload_file():
         file = request.files['file']
         if file and allowed_file(file.filename):
             for line in file.readlines():
+                if not line:
+                    continue
                 (package, version) = utils.parse_line_from_requirements(line.decode('utf-8'))
                 if not _add_package(user, package, version):
                     print('Unable to find package: {0}'.format(package))
