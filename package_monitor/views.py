@@ -70,7 +70,8 @@ def _add_package(user, package_name, version):
             db.session.add(package)
         watched_package = models.WatchedPackage(package_name=package.package_name,
                                                 version=version)
-        user.watched_packages.append(watched_package)
+        if not watched_package in user.watched_packages:
+            user.watched_packages.append(watched_package)
         db.session.commit()
 
         return True
