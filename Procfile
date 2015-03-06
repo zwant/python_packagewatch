@@ -1,0 +1,1 @@
+web: gunicorn package_monitor:app --log-file=-
