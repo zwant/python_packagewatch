@@ -24,6 +24,12 @@ class User(db.Model):
     def __repr__(self):
         return '<User %s, %s>' % (self.id, self.email)
 
+    def watches_package(self, package_name):
+        if models.WatchedPackage.query.filter_by(package_name=package_name).filter_by(user_id=self.id).first():
+            return True
+
+        else:
+            return False
 
 class WatchedPackage(db.Model):
     __tablename__ = 'watched_packages'

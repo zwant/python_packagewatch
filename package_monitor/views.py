@@ -196,6 +196,8 @@ def upload_file():
                 if not line:
                     continue
                 (package, version) = utils.parse_line_from_requirements(line.decode('utf-8'))
+                if user.watches_package(package):
+                    continue
                 if not _add_package(user, package, version):
                     print('Unable to find package: {0}'.format(package))
 
