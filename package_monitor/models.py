@@ -13,6 +13,14 @@ class Package(db.Model):
     def __repr__(self):
         return '<Package %s>' % self.package_name
 
+class WatchedPackage(db.Model):
+    __tablename__ = 'watched_packages'
+    package_name = db.Column(db.String, db.ForeignKey('packages.package_name'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    version = db.Column(db.String)
+
+    def __repr__(self):
+        return '<WatchedPackage %s - %s>' % (self.package_name, self.version)
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -25,17 +33,9 @@ class User(db.Model):
         return '<User %s, %s>' % (self.id, self.email)
 
     def watches_package(self, package_name):
-        if models.WatchedPackage.query.filter_by(package_name=package_name).filter_by(user_id=self.id).first():
+        if WatchedPackage.query.filter_by(package_name=package_name).filter_by(user_id=self.id).first():
             return True
 
         else:
             return False
 
-class WatchedPackage(db.Model):
-    __tablename__ = 'watched_packages'
-    package_name = db.Column(db.String, db.ForeignKey('packages.package_name'), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    version = db.Column(db.String)
-
-    def __repr__(self):
-        return '<WatchedPackage %s - %s>' % (self.package_name, self.version)
