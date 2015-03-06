@@ -7,7 +7,7 @@ setup(
     packages=['package_monitor'],
     include_package_data=True,
     zip_safe=False,
-    install_requires=['Flask',
+    install_requires=['flask',
                       'Flask-WTF',
                       'requests',
                       'psycopg2',

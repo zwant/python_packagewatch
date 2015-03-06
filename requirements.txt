@@ -1,7 +1,7 @@
-Flask
+flask
 Flask-WTF
 requests
 psycopg2
 SQLAlchemy
 Flask-SQLAlchemy
-pyt
+pytz

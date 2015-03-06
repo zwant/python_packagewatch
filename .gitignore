@@ -37,3 +37,4 @@ pyvenv.cfg
 .Python
 database.db
 include
+pip-selfcheck.json
