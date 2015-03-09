@@ -86,7 +86,7 @@ def start_page():
     if 'user_email' in session:
         user = models.User.query.filter_by(email=session['user_email']).first()
 
-    if request.method == 'POST' and form.validate():
+    if request.method == 'POST' and form.validate() and user:
         if utils.add_package(user, form.package_name.data, form.package_version.data):
             return redirect(url_for('views.start_page'))
         else:

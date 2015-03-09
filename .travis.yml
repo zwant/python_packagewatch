@@ -5,4 +5,4 @@ python:
 install:
   - "pip install -r requirements.txt"
 # command to run tests
-script: DATABASE_URL='fake' py.test package_monitor/ --doctest-modules
+script: DATABASE_URL="sqlite:////" py.test --doctest-modules test/ package_monitor/
