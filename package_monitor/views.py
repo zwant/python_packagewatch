@@ -165,7 +165,7 @@ def start_page():
                                  'latest_version': package.latest_version,
                                  'package_url': package.package_url,
                                  'python3_compat': package.python3_compat,
-                                 'version': watched_package.version}
+                                 'version': str(watched_package.version)}
             # Latest is newer than current
             watched_package.latest_version = package.latest_version
             if utils.compare_package_versions(package.latest_version, watched_package.version):
@@ -196,10 +196,9 @@ def upload_file():
                 if not line:
                     continue
                 (package, version) = utils.parse_line_from_requirements(line.decode('utf-8'))
-                if user.watches_package(package):
-                    continue
-                if not _add_package(user, package, version):
-                    print('Unable to find package: {0}'.format(package))
+                if package and version and not user.watches_package(package):
+                    if not _add_package(user, package, version):
+                        print('Unable to find package: {0}'.format(package))
 
     return redirect(url_for('views.start_page'))
 

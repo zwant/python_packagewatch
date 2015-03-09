@@ -1,16 +1,27 @@
 import re
 import requests
-
+from pip._vendor.packaging.version import parse, Version, LegacyVersion
 PYPI_URL_TEMPLATE = 'https://pypi.python.org/pypi/{0}/json'
-requirements_parsing_regexp = re.compile(r'([^\<\=\>\s]*)\s?[\<\=\>]{1,2}\s?([0-9\.]*)')
-
-def cmp(a, b):
-    return (a > b) - (a < b)
 
 def compare_package_versions(first, other):
-    def normalize(v):
-        return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
-    return cmp(normalize(first), normalize(other))
+    """ 
+    Normal version-strings work fine:
+    >>> compare_package_versions('1.5.0', '1.6.0')
+    -1
+    >>> compare_package_versions('1.6.0', '1.5.0')
+    1
+
+    pip version objects work:
+    >>> compare_package_versions(Version('1.6.0'), Version('1.5.0'))
+    1
+    >>> compare_package_versions(LegacyVersion('1.6.0'), LegacyVersion('1.5.0'))
+    1
+    >>> compare_package_versions(Version('1.6.0b2'), Version('1.6.0b1'))
+    1
+    >>> compare_package_versions(Version('1.6.0b2'), Version('1.6.0b2'))
+    0
+    """
+    return cmp(first, other)
 
 def check_if_package_exists_on_pypi(package_name):
     print('Checking if package {0} exists on PyPI'.format(package_name))
@@ -26,7 +37,41 @@ def get_package_info_from_pypi(package_name):
     return None
 
 def parse_line_from_requirements(line):
-    matching = requirements_parsing_regexp.match(line)
-    if matching:
-        return (matching.group(1), matching.group(2))
-    return None
+    """ 
+    Normal version specifiers work:
+    >>> parse_line_from_requirements('Django==1.6.0')
+    ('Django', <Version('1.6.0')>)
+    >>> parse_line_from_requirements('Django>=1.6.0')
+    ('Django', <Version('1.6.0')>)
+    >>> parse_line_from_requirements('Django<=1.6.0')
+    ('Django', <Version('1.6.0')>)
+
+    Version or package versions with spaces around separators work:
+    >>> parse_line_from_requirements(' Django <= 1.6.0')
+    ('Django', <Version('1.6.0')>)
+
+    Beta and pre-release version work:
+    >>> parse_line_from_requirements('Django<=1.6.0b1')
+    ('Django', <Version('1.6.0b1')>)
+    >>> parse_line_from_requirements('html5lib==1.0b3')
+    ('html5lib', <Version('1.0b3')>)
+
+    >>> package,version = parse_line_from_requirements('html5lib==1.0b3')
+    >>> print str(version)
+    1.0b3
+    >>> Version(str(version))
+    <Version('1.0b3')>
+
+    Invalid requirements-lines returns None:
+    >>> parse_line_from_requirements('Django 1.6.0b1')
+    (None, None)
+    >>> parse_line_from_requirements('Django')
+    (None, None)
+
+    """
+    split_result = re.split('[==|<=|>=]+', line)
+    if len(split_result) != 2:
+        return None, None
+    package, version = split_result
+    parsed_version = parse(version.strip())
+    return package.strip(), parsed_version
