@@ -1,6 +1,7 @@
-from package_monitor import db
+from package_monitor import db, bcrypt
 import sqlalchemy as sa
 from pip._vendor.packaging.version import parse, Version, LegacyVersion
+import pytz
 
 class PipVersionType(sa.types.TypeDecorator):
     impl = sa.types.String
@@ -26,6 +27,16 @@ class Package(db.Model):
 
     def __repr__(self):
         return '<Package %s>' % self.package_name
+    
+    @classmethod
+    def from_pypi_package_info(cls, pypi_package_info):
+        package = cls(package_name=package_name)
+        package.package_url = pypi_package_info['package_url']
+        package.latest_version = pypi_package_info['version']
+        package.python3_compat = pypi_package_info['python3_compat']
+        package.last_updated = datetime.datetime.now(tz=pytz.utc)
+
+        return package
 
 class WatchedPackage(db.Model):
     __tablename__ = 'watched_packages'

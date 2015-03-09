@@ -12,12 +12,10 @@ blueprint = Blueprint('views', __name__)
 class AddPackageForm(Form):
     package_name = TextField('Package Name', [validators.Required(),
                                               validators.Length(min=1, max=50)])
-    package_version = TextField('Package Version', [validators.Regexp(r'^\d{1,3}(\.\d{1,3})*$'),
-                                                    validators.Length(min=1, max=10)])
+    package_version = TextField('Package Version', validators.Length(min=1, max=10))
 
 class UpdatePackageForm(Form):
-    new_package_version = TextField('New Package Version', [validators.Regexp(r'^\d{1,3}(\.\d{1,3})*$'),
-                                                            validators.Length(min=1, max=10)])
+    new_package_version = TextField('New Package Version', validators.Length(min=1, max=10))
 
 class RegistrationForm(Form):
     email = TextField('Email', [validators.Required()])
@@ -27,66 +25,17 @@ class LoginForm(Form):
     email = TextField('Email', [validators.Required()])
     password = TextField('Password', [validators.Required()])
 
-def _delete_package(user, package_name):
-    package_to_delete = models.WatchedPackage.query \
-           .join(models.User) \
-           .filter(models.User.email == user) \
-           .filter(models.WatchedPackage.package_name == package_name) \
-           .first()
-    if package_to_delete:
-        db.session.delete(package_to_delete)
-        db.session.commit()
-    else:
-        db.session.rollback()
 
-def _update_package_version(user, package_name, new_version):
-    package = models.WatchedPackage.query \
-                                   .join(models.User) \
-                                   .filter(models.User.email == user) \
-                                   .filter(models.WatchedPackage.package_name == package_name) \
-                                   .first()
-    if package:
-        package.version = new_version
-        db.session.commit()
-    else:
-        db.session.rollback()
-
-def _check_python3_compat(info):
-    if "classifiers" in info and "Programming Language :: Python :: 3" in info['classifiers']:
-        return True
-    return False
-
-def _add_package(user, package_name, version):
-    # Check that the package exists
-    if utils.check_if_package_exists_on_pypi(package_name):
-        package = models.Package.query.filter_by(package_name=package_name).first()
-        # New package that we have never seen before :)
-        if not package:
-            package = models.Package(package_name=package_name)
-            pypi_package_info = utils.get_package_info_from_pypi(package_name)
-            package.package_url = pypi_package_info['package_url']
-            package.latest_version = pypi_package_info['version']
-            package.last_updated = datetime.datetime.now(tz=pytz.utc)
-            db.session.add(package)
-        watched_package = models.WatchedPackage(package_name=package.package_name,
-                                                version=version)
-        if not watched_package in user.watched_packages:
-            user.watched_packages.append(watched_package)
-        db.session.commit()
-
-        return True
-    else:
-        return None
 
 @blueprint.route('/package/<package_name>/', methods=['DELETE', 'POST'])
 def update_package(package_name):
     if request.method == 'DELETE':
-        _delete_package(session['user_email'], package_name)
+        utils.delete_package(session['user_email'], package_name)
         return jsonify(result='SUCCESS')
     elif request.method == 'POST':
         form = UpdatePackageForm(request.form, csrf_enabled=False)
         if form.validate():
-            _update_package_version(session['user_email'], package_name, form.new_package_version.data)
+            utils.update_package_version(session['user_email'], package_name, form.new_package_version.data)
             return redirect(url_for('views.start_page'))
     db.session.rollback()
     abort(400)
@@ -102,7 +51,7 @@ def register():
             return jsonify(result='INVALID_EMAIL')
         else:
             new_user = models.User(email=form.email.data,
-                                   password=form.password.data)
+                                   password=bcrypt.generate_password_hash(form.password.data))
             db.session.add(new_user)
             db.session.commit()
             session['user_email'] = form.email.data
@@ -116,7 +65,7 @@ def login():
     if request.method == 'POST' and form.validate():
         user = models.User.query.filter_by(email=form.email.data).first()
 
-        if user and user.password == form.password.data:
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
             session['user_email'] = form.email.data
             return jsonify(result='SUCCESS')
         else:
@@ -138,7 +87,7 @@ def start_page():
         user = models.User.query.filter_by(email=session['user_email']).first()
 
     if request.method == 'POST' and form.validate():
-        if _add_package(user, form.package_name.data, form.package_version.data):
+        if utils.add_package(user, form.package_name.data, form.package_version.data):
             return redirect(url_for('views.start_page'))
         else:
             error_msg = 'No such package found on PyPI'
@@ -156,10 +105,7 @@ def start_page():
                 # No recent version...
                 pypi_package_info = utils.get_package_info_from_pypi(package.package_name)
                 if pypi_package_info:
-                    package.latest_version = pypi_package_info['version']
-                    package.package_url = pypi_package_info['package_url']
-                    package.python3_compat = _check_python3_compat(pypi_package_info)
-                    package.last_updated = datetime.datetime.now(tz=pytz.utc)
+                    package = models.Package.from_pypi_package_info(pypi_package_info)
 
             to_return_package = {'package_name': package.package_name,
                                  'latest_version': package.latest_version,
@@ -197,7 +143,7 @@ def upload_file():
                     continue
                 (package, version) = utils.parse_line_from_requirements(line.decode('utf-8'))
                 if package and version and not user.watches_package(package):
-                    if not _add_package(user, package, version):
+                    if not utils.add_package(user, package, version):
                         print('Unable to find package: {0}'.format(package))
 
     return redirect(url_for('views.start_page'))
