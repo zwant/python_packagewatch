@@ -114,7 +114,7 @@ def start_page():
                                  'version': str(watched_package.version)}
             # Latest is newer than current
             watched_package.latest_version = package.latest_version
-            if utils.compare_package_versions(package.latest_version, watched_package.version):
+            if utils.compare_package_versions(package.latest_version, watched_package.version) < 0:
                 to_return_package['is_old'] = True
             else:
                 to_return_package['is_old'] = False
