@@ -1,7 +1,7 @@
 import datetime
 import pytz
 
-from package_monitor import utils, models, app, db
+from package_monitor import utils, models, app, db, bcrypt
 from flask import render_template, request, redirect, url_for, jsonify, abort, session, Blueprint
 from wtforms import Form, TextField, validators
 from werkzeug import secure_filename
