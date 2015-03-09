@@ -12,10 +12,10 @@ blueprint = Blueprint('views', __name__)
 class AddPackageForm(Form):
     package_name = TextField('Package Name', [validators.Required(),
                                               validators.Length(min=1, max=50)])
-    package_version = TextField('Package Version', validators.Length(min=1, max=10))
+    package_version = TextField('Package Version', [validators.Length(min=1, max=10)])
 
 class UpdatePackageForm(Form):
-    new_package_version = TextField('New Package Version', validators.Length(min=1, max=10))
+    new_package_version = TextField('New Package Version', [validators.Length(min=1, max=10)])
 
 class RegistrationForm(Form):
     email = TextField('Email', [validators.Required()])
