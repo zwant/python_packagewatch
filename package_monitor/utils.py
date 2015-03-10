@@ -126,7 +126,7 @@ def add_package(user, package_name, version):
         if not package:
             package_info = get_package_info_from_pypi(package_name)
             if package_info:
-                package = models.Package.from_pypi_package_info(package_info)
+                package = models.Package.from_pypi_package_info(package_name, package_info)
                 db.session.add(package)
         watched_package = models.WatchedPackage(package_name=package.package_name,
                                                 version=version)
