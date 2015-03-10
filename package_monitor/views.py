@@ -105,8 +105,7 @@ def start_page():
                 # No recent version...
                 pypi_package_info = utils.get_package_info_from_pypi(package.package_name)
                 if pypi_package_info:
-                    package = models.Package.from_pypi_package_info(pypi_package_info)
-                    db.session.merge(package)
+                    package.populate_from_pypi_package_info(pypi_package_info)
 
             to_return_package = {'package_name': package.package_name,
                                  'latest_version': package.latest_version,

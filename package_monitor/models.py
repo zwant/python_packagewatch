@@ -29,15 +29,11 @@ class Package(db.Model):
     def __repr__(self):
         return '<Package %s>' % self.package_name
     
-    @classmethod
-    def from_pypi_package_info(cls, pypi_package_info):
-        package = cls(package_name=pypi_package_info['name'])
+    def populate_from_pypi_package_info(self, pypi_package_info):
         package.package_url = pypi_package_info['package_url']
         package.latest_version = pypi_package_info['version']
         package.python3_compat = pypi_package_info['python3_compat']
         package.last_updated = datetime.datetime.now(tz=pytz.utc)
-
-        return package
 
 class WatchedPackage(db.Model):
     __tablename__ = 'watched_packages'
