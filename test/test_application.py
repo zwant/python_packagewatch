@@ -5,7 +5,6 @@ import responses
 from StringIO import StringIO
 
 class BasicTest(TestCase):
-    render_templates = False
 
     def create_app(self):
         return app
@@ -40,7 +39,6 @@ class BasicTest(TestCase):
         self.assertEquals(response.json, {'result': 'INVALID_DATA'})
 
 class LoggedInTest(TestCase):
-    render_templates = False
 
     def create_app(self):
         return app

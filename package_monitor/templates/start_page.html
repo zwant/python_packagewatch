@@ -17,6 +17,7 @@
     <title>Python Package Watcher</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel=stylesheet media="screen" type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel=stylesheet media="screen" type=text/css href="{{ url_for('static', filename='css/bootstrap-sortable.css') }}">
     <link rel=stylesheet media="screen" type=text/css href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
@@ -47,11 +48,12 @@
     <div class="row-fluid">
         <div class="span12">
             {% if all_packages %}
-                <table class="table">
+                <table class="table sortable">
                     <thead>
                     <th> <div class="text-center"> Package Name </div> </th>
-                    <th> <div class="text-center"> Your Package Version </div> </th>
-                    <th> <div class="text-center"> Latest Package Version </div> </th>
+                    <th> <div class="text-center" data-defaultsort='disabled'> Your Package Version </div> </th>
+                    <th> <div class="text-center" data-defaultsort='disabled'> Latest Package Version </div> </th>
+                    <th> <div class="text-center"> Old? </div> </th>
                     <th> <div class="text-center"> Python 3 Compatible? </div> </th>
                     </thead>
                     <tbody>
@@ -72,6 +74,16 @@
                         <td>
                             <div class="text-center">
                                 <b> {{ package.latest_version }} </b>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-center">
+                                {% if package.is_old %}
+                                    Yes
+                                {% else %}
+                                    No
+                                {% endif %}
+                                <b> {{ package.python3_compat }} </b>
                             </div>
                         </td>
                         <td>
@@ -224,6 +236,7 @@
 
 <script src="http://code.jquery.com/jquery.js"></script>
 <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap-sortable.js') }}"></script>
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 </body>
