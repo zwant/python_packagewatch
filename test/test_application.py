@@ -1,4 +1,4 @@
-from package_monitor import app, db, bcrypt, models
+from package_monitor import app, db, bcrypt, models, utils
 from flask import Flask
 from flask.ext.testing import TestCase
 import responses
@@ -121,6 +121,18 @@ class LoggedInTest(TestCase):
     def tearDown(self):
         db.session.remove()
         db.drop_all()
+
+    @responses.activate
+    def test_package_properly_marked_as_old(self):
+        response = self.client.post('/', data=dict(package_name='Django',
+                                                   package_version='1.6.0'))
+        user = models.User.query.filter_by(email='test@paldan.se').first()
+        self.assertEqual(len(user.watched_packages), 1)
+        watched_package = user.watched_packages[0]
+        package = models.Package.query.filter_by(package_name='Django').first()
+        self.assertIsNotNone(package)
+        self.assertEqual(utils.compare_package_versions(package.latest_version, watched_package.version), 1)
+        self.assertEqual(utils.compare_package_versions(watched_package.version, package.latest_version), -1)
 
     @responses.activate
     def test_add_package(self):
