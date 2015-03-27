@@ -39,6 +39,9 @@ def get_package_info_from_pypi(package_name):
 
     return None
 
+
+PYTHON3_REGEXP = re.compile('^Programming Language \:\: Python \:\: 3.*$')
+
 def check_python3_compat(info):
     """
     >>> check_python3_compat({'classifiers': ['Programming Language :: Python :: 3']})
@@ -47,9 +50,18 @@ def check_python3_compat(info):
     False
     >>> check_python3_compat({'classifiers': ['Programming Language :: Python :: 3', 'Programming Language :: Python :: 2']})
     True
+    >>> check_python3_compat({'classifiers': ['Programming Language :: Python :: 3.3', 'Programming Language :: Python :: 2']})
+    True
+    >>> check_python3_compat({'classifiers': ['Programming Language :: Python :: 3.4', 'Programming Language :: Python :: 2']})
+    True
+    >>> check_python3_compat({'classifiers': ['Programming Language :: Python :: 3.10', 'Programming Language :: Python :: 2']})
+    True
+
     """
-    if "classifiers" in info and "Programming Language :: Python :: 3" in info['classifiers']:
-        return True
+    if "classifiers" in info:
+        for classifier in info['classifiers']:
+            if PYTHON3_REGEXP.match(classifier):
+                return True
     return False
 
 def parse_line_from_requirements(line):
